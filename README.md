@@ -1,6 +1,6 @@
 # SSE Project Playground
 
-### To set up 
+### To get started:
 
 1. Set up Conda environment
 ```
