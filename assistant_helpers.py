@@ -27,7 +27,7 @@ def process_csv(file_path):
     return json.dumps(data_dict)
 
 # Create assistant
-def create_assistant(name='City Helper', instructions='', model='gpt-4o', enable_function=False):
+def create_assistant(name='City Helper', instructions='', model='gpt-4o', temperature=1, enable_function=False):
     if enable_function:
         tool_array = [{"type": "code_interpreter"},
                       {
@@ -49,10 +49,11 @@ def create_assistant(name='City Helper', instructions='', model='gpt-4o', enable
         tool_array = [{"type": "code_interpreter"}]
     
     assistant = client.beta.assistants.create(
-        instructions="",
+        instructions=instructions,
         name="City Helper",
         tools= tool_array,
-        model="gpt-4o"
+        model="gpt-4o",
+        temperature=temperature
     )
     return assistant
 
@@ -171,3 +172,37 @@ def prompt_assistant(assistant=None, prompt=None, file_path=None, debug=False):
     output = "\n".join(entry["content"] for entry in sorted_entries)
 
     return output, thread, messages, run_steps
+
+# Evaluate method
+def evaluate_method(assistant=None, prompt=None, file_path=None, debug=False, runs=10):
+    
+    # Create array to store responses
+    responses = []
+
+    # Loop and acquire outputs
+    for i in range(runs):
+        response = prompt_assistant(assistant=assistant, prompt=prompt, file_path=file_path)
+        responses.append(response[2][0].content[0].text.value)
+        print(f'Run {i+1}/{runs} complete.')
+
+    # Check answers against LLM judge
+    accuracy = []
+    for response in responses:
+        completion = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "developer", "content": "You are tasked with determining whether or not an answer is correct and complete.\
+            The user will provide an input and you will compare it to your sample answer and output 1 if it contains all \
+            of the information in the sample answer and 0 otherwise.  Your sample answer is below:\
+            New York, because of its vibrant city life and diversity. because of its vibrant city life and diversity. Additionally, It's home to the largest metropolitan zoo in the US.\
+            You will ONLY output 0 or 1 and nothing else."},
+            {"role": "user", "content": response}
+        ]
+        )
+        accuracy.append([response, completion.choices[0].message.content])
+        print(f'Evaluation {i+1}/{runs} complete.')
+    
+    accuracy_df = pd.DataFrame(accuracy, columns=['Response','Accurate'])
+
+    return accuracy, accuracy_df
+    
