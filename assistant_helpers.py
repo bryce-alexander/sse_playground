@@ -187,6 +187,7 @@ def evaluate_method(assistant=None, prompt=None, file_path=None, debug=False, ru
 
     # Check answers against LLM judge
     accuracy = []
+    i = 1
     for response in responses:
         completion = client.chat.completions.create(
         model="gpt-4o",
@@ -201,6 +202,7 @@ def evaluate_method(assistant=None, prompt=None, file_path=None, debug=False, ru
         )
         accuracy.append([response, completion.choices[0].message.content])
         print(f'Evaluation {i+1}/{runs} complete.')
+        i+=1
     
     accuracy_df = pd.DataFrame(accuracy, columns=['Response','Accurate'])
 
