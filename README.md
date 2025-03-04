@@ -14,4 +14,4 @@ conda activate sso_playground
 ```
 jupyter notebook
 ```
-4. Open `ProjectEval.ipynb` to review/run final evaluations or `ProjectPlayground.ipynb` and review/run experiments
+4. Open [`ProjectEval.ipynb`](https://github.com/bryce-alexander/sse_playground/blob/master/ProjectEval.ipynb) to review/run final evaluations or [`ProjectPlayground.ipynb`](https://github.com/bryce-alexander/sse_playground/blob/master/ProjectEval.ipynb) and review/run experiments
